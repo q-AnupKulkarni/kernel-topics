@@ -885,13 +885,13 @@
 			no-map;
 		};
 
-		firmware_logs_mem: firmware-logs-region@d7640000 {
-			reg = <0x0 0xd7640000 0x0 0x10000>;
+		firmware_shared_mem: firmware-shared-region@d7650000 {
+			reg = <0x0 0xd7650000 0x0 0x180000>;
 			no-map;
 		};
 
-		firmware_shared_mem: firmware-shared-region@d7650000 {
-			reg = <0x0 0xd7650000 0x0 0x1b0000>;
+		firmware_logs_mem: firmware-logs-region@d77d0000 {
+			reg = <0x0 0xd77d0000 0x0 0x20000>;
 			no-map;
 		};
 
