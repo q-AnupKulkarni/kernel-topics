@@ -194,6 +194,74 @@
 };
 
 &cci1_i2c1 {
+	leds_controller: leds-controller@22 {
+		compatible = "nxp,pca9635";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x22>;
+
+		red@0 {
+			label = "red1";
+			reg = <0>;
+			linux,default-trigger = "none";
+		};
+		green@1 {
+			label = "green1";
+			reg = <1>;
+			linux,default-trigger = "none";
+		};
+		blue@2 {
+			label = "blue1";
+			reg = <2>;
+			linux,default-trigger = "none";
+		};
+		red@3 {
+			label = "red2";
+			reg = <3>;
+			linux,default-trigger = "none";
+		};
+		green@4 {
+			label = "green2";
+			reg = <4>;
+			linux,default-trigger = "none";
+		};
+		blue@5 {
+			label = "blue2";
+			reg = <5>;
+			linux,default-trigger = "none";
+		};
+		red@6 {
+			label = "red3";
+			reg = <6>;
+			linux,default-trigger = "none";
+		};
+		green@7 {
+			label = "green3";
+			reg = <7>;
+			linux,default-trigger = "none";
+		};
+		blue@8 {
+			label = "blue3";
+			reg = <8>;
+			linux,default-trigger = "none";
+		};
+		red@9 {
+			label = "red4";
+			reg = <9>;
+			linux,default-trigger = "none";
+		};
+		green@a {
+			label = "green4";
+			reg = <10>;
+			linux,default-trigger = "none";
+		};
+		blue@b {
+			label = "blue4";
+			reg = <11>;
+			linux,default-trigger = "none";
+		};
+	};
+
 	fan_controller: fan-controller@2f {
 		compatible = "microchip,emc2305";
 		reg = <0x2f>;
