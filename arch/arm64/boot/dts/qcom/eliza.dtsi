@@ -4220,12 +4220,14 @@
 			compatible = "qcom,eliza-llcc-bwmon", "qcom,sc7280-llcc-bwmon";
 			reg = <0 0x24091000 0 0x1000>;
 
-			interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH 0>;
+			interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
 
 			interconnects = <&mc_virt MASTER_LLCC QCOM_ICC_TAG_ACTIVE_ONLY
 					 &mc_virt SLAVE_EBI1 QCOM_ICC_TAG_ACTIVE_ONLY>;
 
 			operating-points-v2 = <&llcc_bwmon_opp_table>;
+
+			status = "disabled";
 
 			llcc_bwmon_opp_table: opp-table {
 				compatible = "operating-points-v2";
@@ -4279,6 +4281,8 @@
 					 &mc_virt SLAVE_EBI1 QCOM_ICC_TAG_ACTIVE_ONLY>;
 
 			operating-points-v2 = <&cpu_bwmon_opp_table>;
+
+			status = "disabled";
 
 			cpu_bwmon_opp_table: opp-table {
 				compatible = "operating-points-v2";
