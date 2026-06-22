@@ -18,7 +18,7 @@
 	};
 };
 
-&spmi_bus1 {
+&spmi_bus0 {
 	pmk8550: pmic@0 {
 		compatible = "qcom,pm8550", "qcom,spmi-pmic";
 		reg = <0x0 SPMI_USID>;
