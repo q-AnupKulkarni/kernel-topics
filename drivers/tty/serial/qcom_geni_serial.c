@@ -107,6 +107,7 @@ static DEFINE_IDA(port_ida);
 
 struct qcom_geni_device_data {
 	bool console;
+	bool skip_pm_runtime;
 	enum geni_se_xfer_mode mode;
 	struct dev_pm_domain_attach_data pd_data;
 	int (*resources_init)(struct uart_port *uport);
@@ -1727,17 +1728,43 @@ static int geni_serial_resource_init(struct uart_port *uport)
 static void qcom_geni_serial_pm(struct uart_port *uport,
 		unsigned int new_state, unsigned int old_state)
 {
+	struct qcom_geni_serial_port *port = to_dev_port(uport);
+	bool power_on, power_off;
 
 	/* If we've never been called, treat it as off */
 	if (old_state == UART_PM_STATE_UNDEFINED)
 		old_state = UART_PM_STATE_OFF;
 
-	if (new_state == UART_PM_STATE_ON && old_state == UART_PM_STATE_OFF)
-		pm_runtime_resume_and_get(uport->dev);
-	else if (new_state == UART_PM_STATE_OFF &&
-		 old_state == UART_PM_STATE_ON)
-		pm_runtime_put_sync(uport->dev);
+	power_on = (new_state == UART_PM_STATE_ON &&
+		    old_state == UART_PM_STATE_OFF);
+	power_off = (new_state == UART_PM_STATE_OFF &&
+		     old_state == UART_PM_STATE_ON);
 
+	if (port->dev_data->skip_pm_runtime) {
+		if (power_on) {
+			int ret = geni_serial_resources_on(uport);
+
+			if (ret)
+				dev_err(uport->dev, "resources_on failed: %d\n", ret);
+		} else if (power_off) {
+			int ret = geni_serial_resources_off(uport);
+
+			if (ret)
+				dev_err(uport->dev, "resources_off failed: %d\n", ret);
+		}
+		return;
+	}
+
+	if (power_on) {
+		int ret = pm_runtime_resume_and_get(uport->dev);
+
+		if (ret < 0) {
+			dev_err(uport->dev, "Failed to resume device in pm ops:%d\n", ret);
+			return;
+		}
+	} else if (power_off) {
+		pm_runtime_put_sync(uport->dev);
+	}
 }
 
 /**
@@ -1919,7 +1946,8 @@ static int qcom_geni_serial_probe(struct platform_device *pdev)
 		}
 	}
 
-	devm_pm_runtime_enable(port->se.dev);
+	if (!data->skip_pm_runtime)
+		devm_pm_runtime_enable(port->se.dev);
 
 	ret = uart_add_one_port(drv, uport);
 	if (ret)
@@ -1928,7 +1956,8 @@ static int qcom_geni_serial_probe(struct platform_device *pdev)
 	return 0;
 
 error:
-	dev_pm_domain_detach_list(port->pd_list);
+	if (port->pd_list)
+		dev_pm_domain_detach_list(port->pd_list);
 	return ret;
 }
 
@@ -2003,6 +2032,7 @@ static int qcom_geni_serial_resume(struct device *dev)
 
 static const struct qcom_geni_device_data qcom_geni_console_data = {
 	.console = true,
+	.skip_pm_runtime = true,
 	.mode = GENI_SE_FIFO,
 	.resources_init = geni_serial_resource_init,
 	.set_rate = geni_serial_set_rate,
